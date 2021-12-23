@@ -33,16 +33,17 @@ own shitty notation/formalization for now.
 Specifically, we'll consider a probability space over computations: $(\Omega_c,
 P_c)$ where $\hat{E} \in \Omega_c$ is an expectation estimator (a map from a
 function of random variables to a real) and $P_c(\hat{E})$ is the probability
-of an expectation estimator. WTF is the probability of an estimator?
+of an expectation estimator. What is the probability of an estimator?
 Well, something like 1 - the probability that further computation would
 prove that estimator is invalid. The defense is in charge of pointing
 out errors in these estimators. Computing perfect estimates of
 logical uncertainty is likely expensive, so we'll let the adversary get
 these estimates wrong by a decent amount, but still penalize it
-some for being inaccurate. We can now take `logical uncertainty expectations'
+some for having inaccuracies pointed out.
+We can now take `logical uncertainty expectations'
 like $E_{\hat{E}}[\hat{E}_X[X]]$. Hopefully the meaning of this is clear.
 
-(Also I've got this vague sense that something like infra-bayes is useful, but
+(Also I've got this vague sense that something like infra-bayes is relevant, but
 I don't really know how or understand infra/ultra distributions well enough to
 say anything meaningful. Like maybe this representation of logical uncertainty
 maps to a shitty or incorrect version of these objects?).
@@ -107,12 +108,8 @@ uncertainty + estimates for the previous activations''. In the most extreme
 case you could imagine the defense using a tail bound to show that the
 adversary has assigned 0 probability to the true value of an expectation.
 
-This does require proving things, but hopefully this is tractable. Tail bounds
-sound scary, but there should be some general bound formulas for the
-activations of a layer given the moments of the previous layers. I haven't
-worked these out and I'm not sure exactly how logical uncertainty work with
-this, but my sense is that this is tractable (without requiring exponential
-moments or something). If not, we have to resort to debating before a judge.
+See the below section titled Thoughts on tail bounds for more detail.
+For now, you can just black box tail bounds as doing what we want.
 
 The adversary is penalized whenever the defense can show these errors. Because
 the input distribution has no logical uncertainty, it should be possible
@@ -128,7 +125,8 @@ During the adversary's turn, it can refine its estimates and reduce logical unce
 A key detail is that both adversary and defense can run lots of computation on
 each turn, but there is some cost (in game points) for this computation. So the
 adversary can refine their estimates on likely cruxes and the defense can dig
-into suspected issues.
+into suspected issues. We should maybe also charge the defense some points for
+asking for expectations from the adversary.
 
 So, when we said `more uncertain than is economical' above, we really meant there is
 an `exploitable' level of uncertainty: spending compute to resolve the uncertainty
@@ -173,11 +171,67 @@ If the hyperparameters are right, hopefully the equilibrium of this game is some
     reason about (see zero-sum factors in adversary reward above).
 \end{itemize}
 
+\section{Thoughts on tail bounds}
+
+Tail bounds sound scary, but there should be some general bound formulas for
+the activations of a layer given the moments of the previous layers. So, the
+action space can probably be fixed, but very large for each set of currently
+available moments. I haven't worked these tail bounds out and I'm not sure
+exactly how logical uncertainty work with this, but my sense is that this is
+tractable (without requiring exponential moments or something). If not, we have
+to resort to debating before a judge and this game might crumble.
+
+TODO: work some example tail bounds.
+
+\section{Trivial subset sum example}
+
+TODO
 
 \section{Hard/uncertain stuff}
 
-\textit{TODO}.
+\begin{itemize}
+  \item Is it OK to require the judge to evaluate input probabilities? We could
+    maybe relax this somewhat by allowing for logical uncertainty over input
+    probabilities and having some ways to better estimate input probabilities
+    which are more expensive. I don't know what this would look like.
+  \item How computable are these tail bounds (or whatever we're using) in
+    practice?
+  \item Do there exist hyperparameters which result in the behaviour we actually
+    care about?
+  \item It's probably possible to train to push away from the doomy logical
+    uncertainty in a supervised way rather than just with RL. 
+    Like you find the gradient of making doom more certain and iterate on that
+    for a few iterations or something.
+    I'm not sure how this could be done.
+  \item Can this actually resolve hard cases in non-toy examples?
+\end{itemize}
 
-I need to go to sleep, but I'll think about this and fill this in tomorrow.
+\section{Hard examples}
+
+\subsection{Maybe doable now}
+
+Use this game to show that there exist $l_\infty$ norm adversarial examples in a
+case where finding those examples is computationally challenging.
+
+This probably requires training some not very smart models to play the game.
+Same with the below example. I'm not sure how well this will go in practice.
+
+\subsection{Very hard}
+
+Teach enhanced GPT-4 how to verify the solutions to SAT problems. Construct a
+prompt which says something like ``If \_ is a satisfying assignment for $\phi$
+output `stab, stab, stab'. Otherwise output `Hello human friends'.'' $\phi$ is some
+boolean formula.
+
+\begin{itemize}
+  \item Use this game to show that GPT-4 might go stabbing.
+  \item Show that GPT-4 will still maybe go stabbing even if the SAT problem
+    is hard and the satisfiability is unknown. It might be better to use
+    something other than SAT to make encodings for hard problems smaller.
+  \item Show that there exist many prompts which can shown to be stab-free with
+    this approach.
+\end{itemize}
+
+
 
 \end{document}
